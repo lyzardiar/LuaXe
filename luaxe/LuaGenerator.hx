@@ -23,7 +23,7 @@
  */
 package luaxe;
 
-#if (macro && lua)
+#if (macro)
 import haxe.macro.Type;
 import haxe.macro.JSGenApi;
 import haxe.macro.Context;
@@ -538,6 +538,8 @@ class LuaGenerator
 	public static function use() {
 		Compiler.allowPackage("sys");
 		Compiler.define("sys");
+        Compiler.allowPackage("lua");
+        Compiler.define("lua");
 		Compiler.setCustomJSGenerator(function(api) new LuaGenerator(api).generate());
 	}
 }

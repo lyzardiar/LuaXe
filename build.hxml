@@ -1,7 +1,6 @@
 ### lua ###
 -cp demo
 -main Main
--D lua
 -js bin/hx.lua
 --macro luaxe.LuaGenerator.use()
 -dce full

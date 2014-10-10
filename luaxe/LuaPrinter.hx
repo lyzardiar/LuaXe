@@ -22,7 +22,7 @@
 
 package luaxe;
 
-#if (macro && lua)
+#if (macro)
 import haxe.ds.StringMap;
 
 import haxe.macro.Expr.Unop;

@@ -9,6 +9,11 @@ class Main
 {
     public static function main()
     {
+        // -D lua is defined automaticaly
+        #if lua
+            trace("Lua Rocks!");
+        #end
+
         // Using native Lua arrays
         // indexed from zero [0]
         var larr = new LuaArray<Int>();
