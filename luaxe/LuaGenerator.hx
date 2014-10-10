@@ -69,10 +69,11 @@ class LuaGenerator
         while(x-- > 0)	print("\t");
     }
 
+    var LP = new LuaPrinter();
     inline function genExpr(e)
     {
         var expr:haxe.macro.TypedExpr = e;
-        var exprString = new LuaPrinter().printExpr(expr);
+        var exprString = LP.printExpr(expr);
         print(exprString.replace("super(", "super.init("));
     }
 
@@ -159,7 +160,7 @@ class LuaGenerator
         {
             case FMethod(_):
                 print('function $p:$field');
-                luaxe.LuaPrinter.printFunctionHead = false;
+                LuaPrinter.printFunctionHead = false;
                 genExpr(e);
                 newline();
             default:
@@ -190,7 +191,7 @@ class LuaGenerator
         else switch( f.kind ) {
             case FMethod(_):
                 print('function ${p}.$field');
-                luaxe.LuaPrinter.printFunctionHead = false;
+                LuaPrinter.printFunctionHead = false;
                 genExpr(e);
                 newline();
             default:
