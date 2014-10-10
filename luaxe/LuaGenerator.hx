@@ -217,6 +217,7 @@ class LuaGenerator
         "Enum_Enum",
         "Type_Type",
         "haxe_Json_Json",
+        "luaxe_Sys_Sys",
 
         // temporal fix:
 
@@ -480,6 +481,7 @@ class LuaGenerator
 		boot .add( "" + sys.io.File.getContent('$path/boot/boot.lua') );
 		boot .add( "\n" + sys.io.File.getContent('$path/boot/tostring.lua') );
 		if(hxClasses.has("Std_Std")) boot .add( "\n" + sys.io.File.getContent('$path/boot/std.lua') );
+        if(hxClasses.has("luaxe_Sys_Sys")) boot .add( "\n" + sys.io.File.getContent('$path/boot/sys.lua') );
 		/*if(hxClasses.has("Math_Math"))*/ boot .add( "\n" + sys.io.File.getContent('$path/boot/math.lua') );
         if(hxClasses.has("Type_Type")) boot .add( "\n" + sys.io.File.getContent('$path/boot/type.lua') );
 		boot .add( "\n" + sys.io.File.getContent('$path/boot/string.lua') );
