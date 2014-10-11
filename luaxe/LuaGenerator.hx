@@ -219,6 +219,12 @@ class LuaGenerator
         "haxe_Json_Json",
         "luaxe_Sys_Sys",
 
+        "haxe_ds_BalancedTree_TreeNode",
+        "haxe_ds_BalancedTree_BalancedTree",
+        "haxe_ds_ObjectMap",
+        "haxe_io_Input_Input",
+        "haxe_io_BytesInput_BytesInput",
+
         // temporal fix:
 
         "Class_Class",
