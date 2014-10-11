@@ -35,10 +35,14 @@ abstract Map<K,V>(IMap<K,V>) {
 
 	public function new() untyped this = {};
 
-	public inline function set(key:K, value:V) return untyped this[key] = value;
-	public inline function get(key:K) return untyped this[key];
+	public inline function set(key:K, value:V):V {
+		untyped this[key] = value;
+		return value;
+	}
 
-	@:arrayAccess @:noCompletion public inline function _get(key:K) return untyped this[key];
+	public inline function get(key:K):V return untyped this[key];
+
+	@:arrayAccess @:noCompletion public inline function _get(key:K):V return untyped this[key];
 
 	@:arrayAccess @:noCompletion public inline function _set(k:K, v:V):V {
 		untyped this[k] = v;
@@ -78,7 +82,6 @@ abstract Map<K,V>(IMap<K,V>) {
 	}
 
 	public function iterator():Iterator<V> {
-
 		var l = 0;
 		var a = untyped ___lua___("{}");
 		var t:Dynamic = this;

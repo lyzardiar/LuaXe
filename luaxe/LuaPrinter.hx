@@ -156,7 +156,7 @@ class LuaPrinter {
 		for(i in 0 ... args.length)
 		{
 			var arg = args[i];
-			argString = (argString == null?"":argString+", ") + arg.v.name;
+			argString = (argString == null?"":argString+", ") + handleKeywords(arg.v.name);
 		}
 		return (argString == null?"":argString);
 	}
