@@ -30,6 +30,18 @@ class Main
         arr2.push("x");
         trace(arr);
 
+        // Maps works as expected
+        var map = new Map<String, Int>();
+            map["x"] = 1;
+            map["y"] = 2;
+            map["z"] = map["x"] + map["y"];
+        trace(map["x"]);
+        trace(map["oops"]);
+        trace(map[null]);
+        trace(map);
+        trace(map.exists("x"));
+        trace(map.remove("x"));
+
         // Multiline strings are supported
         trace(" Dyna
         _test_multiline_strings_
