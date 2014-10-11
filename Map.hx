@@ -53,12 +53,53 @@ abstract Map<K,V>(IMap<K,V>) {
 		return _has;
 	}
 
-	public inline function keys():Iterator<K> {
-		return cast "TODO"; // TODO
+	public function keys():Iterator<K> {
+		var l = 0;
+		var a = untyped ___lua___("{}");
+		var t:Dynamic = this;
+
+		untyped __lua__('for k,v in pairs(t) do
+			a[l] = k;
+			l = l + 1;
+		end');
+
+		var i = 0;
+
+		var ret:Dynamic = untyped ___lua___("{}");
+		ret.next = function():K {
+			i = i + 1;
+			return a[i - 1];
+		};
+		ret.hasNext = function():Bool {
+			return i < l;
+		};
+
+		return ret;
 	}
 
-	public inline function iterator():Iterator<V> {
-		return cast "TODO"; // TODO
+	public function iterator():Iterator<V> {
+
+		var l = 0;
+		var a = untyped ___lua___("{}");
+		var t:Dynamic = this;
+
+		untyped __lua__('for k,v in pairs(t) do
+			a[l] = v;
+			l = l + 1;
+		end');
+
+		var i = 0;
+
+		var ret:Dynamic = untyped ___lua___("{}");
+		ret.next = function():K {
+			i = i + 1;
+			return a[i - 1];
+		};
+		ret.hasNext = function():Bool {
+			return i < l;
+		};
+
+		return ret;
 	}
 
 	public inline function toString():String {

@@ -41,6 +41,8 @@ class Main
         trace(map);
         trace(map.exists("x"));
         trace(map.remove("x"));
+        for(i in map.keys()) trace("key:"+i);
+        for(i in map) trace("iter:"+i);
 
         // Multiline strings are supported
         trace(" Dyna

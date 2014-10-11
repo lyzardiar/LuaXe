@@ -58,3 +58,5 @@ bin/hx.lua
 demo/extra/hx.lua
 demo/extra/dump
 dump
+
+ast.json

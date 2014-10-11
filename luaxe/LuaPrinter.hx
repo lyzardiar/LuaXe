@@ -316,7 +316,7 @@ class LuaPrinter {
 		{
 			case "trace" :
 				formatPrintCall(el);
-			case "__lua__":
+			case "__lua__", "___lua___":
 				return extractString(el[0]);
 			case "__hash__":
 				'#${printExpr(el.shift())}';
@@ -618,16 +618,11 @@ class LuaPrinter {
 		case TFunction(func): printFunction(func);
 
 		case TFor(v, e1, e2):
-		//for index, value in ipairs(t) do print(index,value) end
-		// TODO no (i)pairs on Maps... and Arrays
-		// TODO smart ::continue::
-		// TODO while-iterator
-		var _tabs = tabs; tabs += tabString;
-		var s = 'for ___, ${v.name} in (${printExpr(e1)}) do';
-		s += '\n${tabs}' + printExpr(e2);
-		s += '\n${_tabs}end';
-		tabs = _tabs;
-		s;
+		'local ___iterablev = ${printExpr(e1)};
+		while( ___iterablev.hasNext() ) do
+			local ${v.name} = ___iterablev.next();
+			${printExpr(e2)}
+		end';
 
 		case TVar(v,e)
 		if(""+v.t == "TAbstract(Int,[])" && e != null): 
