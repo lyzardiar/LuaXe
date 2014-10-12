@@ -70,7 +70,9 @@ class Array<T> implements ArrayAccess<T> {
 	}
 
 	@:keep public function insert( pos : Int, x : T ) : Void {
-
+		var len = length;
+		for(i in -1...len-pos) this[len-i] = this[len-i-1];
+		this[pos] = x;
 	};
 
 
