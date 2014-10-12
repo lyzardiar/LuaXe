@@ -34,12 +34,9 @@ function Std.instance( value, c )
 end
 --static function is(v:Dynamic, t:Dynamic):Bool
 --Tells if a value v is of the type t. Returns false if v or t are null.
---static function parseFloat(x:String):Float
---Converts a String to a Float.
---The parsing rules for parseInt apply here as well, with the exception of invalid input resulting in a NaN value instead of null.
---Additionally, decimal notation may contain a single . to denote the start of the fractions.
 function Std.is( v, t )
 	-- TODO: __ename__ Enums
+	-- TODO basic types & funtions detection
 	if(not(v or t))then return false end
 	return Std.instance( v, t ) and true or false
 end
@@ -57,6 +54,10 @@ __instanceof__ = Std.is
 function Std.parseInt( x )
 	return tonumber(x) -- TODO implement full specification
 end
+--static function parseFloat(x:String):Float
+--Converts a String to a Float.
+--The parsing rules for parseInt apply here as well, with the exception of invalid input resulting in a NaN value instead of null.
+--Additionally, decimal notation may contain a single . to denote the start of the fractions.
 function Std.parseFloat( x )
 	return tonumber(x) -- TODO implement full specification
 end

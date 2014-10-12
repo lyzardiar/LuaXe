@@ -1,4 +1,4 @@
-Reflect = {};
+local Reflect = {};
 Reflect_Reflect = Reflect;
 
 function Reflect.setProperty(o, f, v)
