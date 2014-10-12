@@ -397,6 +397,7 @@ class LuaPrinter {
 		var expr = el[0];
 		var posInfo = Std.string(expr.pos);
 		posInfo = posInfo.substring(5, posInfo.indexOf(" "));
+		posInfo = posInfo.substring(posInfo.lastIndexOf("/") + 1);
 
 		var traceString = printExpr(expr);
 
@@ -421,7 +422,7 @@ class LuaPrinter {
 
 		traceString = traceStringParts.join(" + ");
 
-		return '_G.print($traceString)';
+		return '_G.print("$posInfo " + ($traceString))';
 	}
 
 	function printBaseType(tp:BaseType):String
