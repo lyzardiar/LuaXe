@@ -12,6 +12,14 @@ function Reflect.isFunction(f)
 	return type(f) == "function"
 end
 
+function Reflect.isObject(v)
+	if v == nil then return false end
+	-- to-do: check for enums
+	
+	local t = type(v)
+	return t == "table" or t == "userdata"
+end
+
 function Reflect.hasField(o, f)
 	-- to-do
 	if o == nil or f == nil then return false end
