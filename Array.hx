@@ -155,7 +155,11 @@ class Array<T> implements ArrayAccess<T> {
 	};
 
 	@:keep @:runtime public function shift() : Null<T> {
-		return null;
+		var result = this[0];
+		var len = length;
+		for(i in 0...len) this[i] = this[i+1];
+		this[len-2] = cast null;
+		return result;
 	}
 
 	public function slice( pos : Int, ?ends : Int ) : Array<T> {
