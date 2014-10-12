@@ -56,7 +56,17 @@ class Array<T> implements ArrayAccess<T> {
 	}
 
 	@:keep @:runtime public function iterator() : Iterator<T> {
-		return null;
+		var result:Dynamic = {};
+		result.cur = 0;
+		result.arr = this;
+		result.hasNext = function():Bool {
+			return result.arr[result.cur] != null;
+		}
+		result.next = function():T {
+			result.cur++;
+			return cast result.arr[cast (result.cur - 1)];
+		}
+		return result;
 	}
 
 	@:keep public function insert( pos : Int, x : T ) : Void {
@@ -108,12 +118,16 @@ class Array<T> implements ArrayAccess<T> {
 		return ;
 	}
 
-	@:keep public function indexOf(x : T, ?fromIndex:Int) : Int {
-		return 0;
+	@:keep public function indexOf(x : T, ?fromIndex:Null<Int>) : Int {
+		if(fromIndex == null) fromIndex = 0;
+		for(i in fromIndex...length) if(x == this[i]) return i;
+		return -1;
 	}
 
 	@:keep public function lastIndexOf(x : T, ?fromIndex:Int) : Int {
-		return 0;
+		if(fromIndex == null) fromIndex = length;
+		for(i in 0...fromIndex) if(x == this[fromIndex-i]) return fromIndex-i;
+		return -1;
 	}
 
 	@:keep public function remove(x : T) : Bool {
@@ -188,6 +202,8 @@ class Array<T> implements ArrayAccess<T> {
 	}
 
 	public function filter( f : T -> Bool ) : Array<T> {
-		return null;
+		var result = [];
+		for(i in this) if(f(i)) result.push(i);
+		return result;
 	}	
 }
