@@ -232,7 +232,7 @@ class LuaGenerator
         "DateTools_DateTools",
         "EnumValue_EnumValue",
         //"IntIterator_IntIterator",
-        "Lambda_Lambda",
+        //"Lambda_Lambda",
         "List_List",
         "Map_Map",
         "Math_Math",
