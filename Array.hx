@@ -115,7 +115,9 @@ class Array<T> implements ArrayAccess<T> {
 	}
 
 	@:keep public function unshift(x : T) : Void {
-		return ;
+		var len = length;
+		for(i in 0...len) this[len-i] = this[len-i-1];
+		this[0] = x;
 	}
 
 	@:keep public function indexOf(x : T, ?fromIndex:Null<Int>) : Int {
