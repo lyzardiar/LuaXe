@@ -131,7 +131,16 @@ class Array<T> implements ArrayAccess<T> {
 	}
 
 	@:keep public function remove(x : T) : Bool {
-		return null;
+		var result = indexOf(x);
+		if(result == -1) 
+		{
+			return false;
+		} else {
+			var len = length;
+			for(i in result...len-1) this[i] = this[i+1];
+			this[len] = cast null;
+			return true;
+		}
 	}
 
 	@:keep public function reverse() : Void{
