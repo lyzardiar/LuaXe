@@ -4,7 +4,9 @@ String = {}
 String_String = String
 
 local __StringMeta = getmetatable('')
-function __StringMeta.__add(a,b) return tostring(a or "null") .. tostring(b or "null") end
+function __StringMeta.__add(a,b) 
+  return tostring(a or (a == false and "false") or "null") .. tostring(b or (b == false and "false") or "null")
+end
 
 __StringMeta.__index = function (str, p)
 	if (p == "length") then
