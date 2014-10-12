@@ -32,8 +32,12 @@ __typeof__ = type;
 
 haxe_Log_Log = {};
 function haxe_Log_Log.trace(a, i)
-	print(a)
-	if(i) then print(i) end
+	if(i and i.fileName)then
+		print(i.fileName + ":" + i.lineNumber + ": " + a)
+	else
+		print(a)
+		if(i) then print(i) end
+	end
 end
 
 function haxe_Log_Log.clear()
