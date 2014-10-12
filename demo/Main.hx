@@ -4,7 +4,7 @@ import luaxe.Lua;
 import luaxe.Sys;
 
 // Use readme
-@:require("hello", "world")
+//@:require("hello", "world")
 class Main
 {
     public static function main()
