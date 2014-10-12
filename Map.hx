@@ -36,15 +36,17 @@ abstract Map<K,V>(IMap<K,V>) {
 	public function new() untyped this = {};
 
 	public inline function set(key:K, value:V):V {
-		untyped this[key] = value;
-		return value;
+		var v = value;
+		untyped this[key] = v;
+		return v;
 	}
 
 	public inline function get(key:K):V return untyped this[key];
 
 	@:arrayAccess @:noCompletion public inline function _get(key:K):V return untyped this[key];
 
-	@:arrayAccess @:noCompletion public inline function _set(k:K, v:V):V {
+	@:arrayAccess @:noCompletion public inline function _set(k:K, value:V):V {
+		var v = value;
 		untyped this[k] = v;
 		return v;
 	}

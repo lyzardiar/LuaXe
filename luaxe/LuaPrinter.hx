@@ -118,7 +118,7 @@ class LuaPrinter {
 		case OpMod: "%";
 		case OpInterval: "...";
 		case OpArrow: "=>";
-		default: throw "Unreachable code";
+		default: throw "Unreachable code: printBinop " + op;
 	}
 
 	public function printString(s:String) {
@@ -232,7 +232,11 @@ class LuaPrinter {
 						case _: obj + "." + n;
 					});
 
-				case _: "." + n;
+				case _: 
+					switch (cf.get().kind) {
+						case FMethod(_): (isAssign? "." : ":") + n;
+						case _ :"." + n;
+					}	
 			};
 
 			case FStatic(_,cf): "." + cf.get().name;
@@ -308,9 +312,6 @@ class LuaPrinter {
 		}
 
 		var id = printExpr(e1);
-
-		if(id.indexOf(currentPath) == 0)
-			id = id.substr(currentPath.length);
 
 		var result =  switch(id)
 		{
@@ -421,22 +422,6 @@ class LuaPrinter {
 		traceString = traceStringParts.join(" + ");
 
 		return '_G.print($traceString)';
-	}
-
-	function print_field(e1, name:String):String
-	{
-		var expr = '${printExpr(e1)}.$name';
-
-		if(pathHack.exists(expr))
-			expr = pathHack.get(expr);
-
-		if(expr.indexOf(currentPath) == 0)
-			expr = expr.substr(currentPath.length);
-
-		if(expr.startsWith("this."))
-			expr = expr.replace("this.", "self.");
-
-		return expr;
 	}
 
 	function printBaseType(tp:BaseType):String
@@ -559,54 +544,49 @@ class LuaPrinter {
 			var id:String = printBaseType(tp.get());
 			'${id}.new(${printExprs(el,", ")})';
 
-		//case TBinop(OpAdd, e1, e2) if (e.t.match(TInst("String"))):
-		//    '${printExpr(e1)} .. ${printExpr(e2)}';
-
-		case TBinop(OpAdd, e1, e2): // TODO extend not only for constants
-		{
-			var toStringCall = '${printBinop(OpAdd)}';
-			'${printExpr(e1)} $toStringCall ${printExpr(e2)}';
-		};
-
-		case TBinop(OpXor, e1, e2): // TODO extend not only for constants
+		case TBinop(OpXor, e1, e2):
 		{
 			'bit.bxor(${printExpr(e1)}, ${printExpr(e2)})';
 		};
 
-		case TBinop(OpAnd, e1, e2): // TODO extend not only for constants
+		case TBinop(OpAnd, e1, e2):
 		{
 			'bit.band(${printExpr(e1)}, ${printExpr(e2)})';
 		};
 
-		case TBinop(OpShl, e1, e2): // TODO extend not only for constants
+		case TBinop(OpShl, e1, e2):
 		{
 			'bit.lshift(${printExpr(e1)}, ${printExpr(e2)})';
 		};
 
-		case TBinop(OpShr, e1, e2): // TODO extend not only for constants
+		case TBinop(OpShr, e1, e2):
 		{
 			'bit.rshift(${printExpr(e1)}, ${printExpr(e2)})';
 		};
 
-		case TBinop(OpUShr, e1, e2): // TODO extend not only for constants
+		case TBinop(OpUShr, e1, e2):
 		{
 			'bit.arshift(${printExpr(e1)}, ${printExpr(e2)})';
 		};
 
-		case TBinop(OpOr, e1, e2): // TODO extend not only for constants
+		case TBinop(OpOr, e1, e2):
 		{
 			'bit.bor(${printExpr(e1)}, ${printExpr(e2)})';
 		};
 
 		case TBinop(OpAssignOp(op), e1, e2):
 		{
-			var toStringCall = '${printBinop(op)}';
 			var ex1 = printExpr(e1);
-			'${ex1} = ${ex1} $toStringCall ${printExpr(e2)}';
+			'${ex1} = ' + switch (op) {
+				case OpOr:   'bit.bor(${ex1}, ${printExpr(e2)})';
+				case OpUShr: 'bit.arshift(${ex1}, ${printExpr(e2)})';
+				case OpShl:  'bit.lshift(${ex1}, ${printExpr(e2)})';
+				case OpAnd:  'bit.band(${ex1}, ${printExpr(e2)})';
+				case OpShr:  'bit.rshift(${ex1}, ${printExpr(e2)})';
+				case OpXor:  'bit.bxor(${ex1}, ${printExpr(e2)})';
+				case _: '${ex1} ${printBinop(op)} ${printExpr(e2)}';
+			}
 		};
-
-		/*case TBinop(OpOr, e1, e2): 
-			'OpOr(${printExpr(e1)}, ${printExpr(e2)})';*/
 
 		case TBinop(op, e1, e2): 
 			'${printExpr(e1)} ${printBinop(op)} ${printExpr(e2)}';
@@ -653,6 +633,8 @@ class LuaPrinter {
 						// fixes "floating" vars
 						case TConst(TInt(z)): '-- $z';
 						case TConst(TFloat(z)): '-- $z';
+						case TConst(TBool(z)): '-- $z';
+						case TConst(TNull): '-- nil';
 						case TLocal(z): '-- ${z.name}';
 
 						case TUnop(OpIncrement, _, e): 
@@ -741,7 +723,7 @@ class LuaPrinter {
 				if (!alwaysReturns) s += '\n${tabs}return undefined';
 			}
 			tabs = _tabs;
-		s += '\n${tabs}end);';
+		s += '\n${tabs}end);--';
 		
 		// catch-block:
 		if (_dynCatch.expr != null) switch (_dynCatch.expr.expr) {
