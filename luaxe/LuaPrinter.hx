@@ -599,8 +599,8 @@ class LuaPrinter {
 
 		case TFor(v, e1, e2):
 		'local ___iterablev = ${printExpr(e1)};
-		while( ___iterablev.hasNext() ) do
-			local ${v.name} = ___iterablev.next();
+		while( ___iterablev:hasNext() ) do
+			local ${v.name} = ___iterablev:next();
 			${printExpr(e2)}
 		end';
 

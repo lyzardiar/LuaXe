@@ -231,7 +231,7 @@ class LuaGenerator
         "Date_Date",
         "DateTools_DateTools",
         "EnumValue_EnumValue",
-        "IntIterator_IntIterator",
+        //"IntIterator_IntIterator",
         "Lambda_Lambda",
         "List_List",
         "Map_Map",
