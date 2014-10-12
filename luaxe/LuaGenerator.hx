@@ -489,6 +489,7 @@ class LuaGenerator
 		if(hxClasses.has("Std_Std")) boot .add( "\n" + sys.io.File.getContent('$path/boot/std.lua') );
         if(hxClasses.has("luaxe_Sys_Sys")) boot .add( "\n" + sys.io.File.getContent('$path/boot/sys.lua') );
 		/*if(hxClasses.has("Math_Math"))*/ boot .add( "\n" + sys.io.File.getContent('$path/boot/math.lua') );
+        if(hxClasses.has("Reflect_Reflect")) boot .add( "\n" + sys.io.File.getContent('$path/boot/reflect.lua') );
         if(hxClasses.has("Type_Type")) boot .add( "\n" + sys.io.File.getContent('$path/boot/type.lua') );
 		boot .add( "\n" + sys.io.File.getContent('$path/boot/string.lua') );
         if(hxClasses.has("StringTools_StringTools")) boot .add( "\n" + sys.io.File.getContent('$path/boot/stringtools.lua') );

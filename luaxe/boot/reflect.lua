@@ -41,6 +41,26 @@ function Reflect.field(o, f)
 	return o[f]
 end
 
+function Reflect.setField(o, f, v)
+	-- TODO
+end
+
+function Reflect.getProperty(o, f)
+	return nil -- TODO
+end
+
+function Reflect.isEnumValue(o)
+	return false -- TODO
+end
+
+function Reflect.deleteField(o, f)
+	return false -- TODO
+end
+
+function Reflect.copy(o)
+	return nil -- TODO
+end
+
 function Reflect.compare(a, b)
 	-- to-do
 	if a == nil and b == nil then return 0 end
