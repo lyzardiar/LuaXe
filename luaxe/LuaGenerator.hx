@@ -377,7 +377,13 @@ class LuaGenerator
         var p = getPath(e).replace(".", "_");
 
         #if verbose print('--class $p extends Enum {'); #end
-        print('\n$p = {}');
+        print('\n$p = {__super__ = Enum}');
+        newline();
+        print('\n$p.new = function(tag,index,params) return setmetatable({'+
+            '\n\ttag = tag,'+
+            '\n\tindex = index,'+
+            '\n\tparams = params'+
+            '},Enum) end');
         newline();
         #if verbose print('--$p(t, i, [p]):super(t, i, p);'); #end
         newline();
@@ -391,7 +397,7 @@ class LuaGenerator
                     var sargs = args.map(function(a) return a.name).join(",");
                     print('function($sargs) return $p.new("${c.name}", ${c.index}, {[0]=$sargs}); end');
                 default:
-                    print('{[0]=${api.quoteString(c.name)}, [1]=${c.index}};');
+                    print('setmetatable({[0]=${api.quoteString(c.name)}, [1]=${c.index}},Enum);');
             }
             newline();
         }
@@ -432,11 +438,11 @@ class LuaGenerator
         	Enum(this.tag, this.index, [this.params]);
         	toString()=>params == null ? tag : tag + '(' + params.join(',') + ')';
         	}");	// String toString() { return haxe.Boot.enum_to_string(this); }*/
-        print("
+        /*print("
             Enum = {}
             Enum_Enum = Enum
-        ");
-        newline();
+        ");*/
+        //newline();
     }
 
     public function generate()
