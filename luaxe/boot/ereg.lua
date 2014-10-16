@@ -4,8 +4,7 @@ EReg.__index = EReg
 
 function EReg.new(def)
 	local self = {}
-	setmetatable(self, EReg)
-	return self
+	return setmetatable(self, EReg)
 end
 -- TODO
 function EReg:match() return nil end

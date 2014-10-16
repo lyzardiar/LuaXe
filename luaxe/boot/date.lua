@@ -7,8 +7,7 @@ function Date.now()
 		d = os.date("*t")
 	}
 	self.buf = os.time(self.d)
-	setmetatable(self, Date)
-	return self
+	return setmetatable(self, Date)
 end
 
 function Date.fromTime(t)
@@ -16,8 +15,7 @@ function Date.fromTime(t)
 		d = os.date(t)
 	}
 	self.buf = os.time(self.d)
-	setmetatable(self, Date)
-	return self
+	return setmetatable(self, Date)
 end
 
 function Date.new(year, month, day, hour, min, sec)
@@ -26,8 +24,7 @@ function Date.new(year, month, day, hour, min, sec)
 		d = {year = year, day = day, month = month, hour = hour, min = min, sec = sec}
 	}
 	self.buf = os.time(self.d)
-	setmetatable(self, Date)
-	return self
+	return setmetatable(self, Date)
 end
 
 function Date:getDate()

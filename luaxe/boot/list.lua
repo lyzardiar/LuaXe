@@ -6,8 +6,7 @@ function List.new()
 	local self = {
 		_a = {}, length = 0
 	}
-	setmetatable(self, List)
-	return self
+	return setmetatable(self, List)
 end
 
 function List:add(item)

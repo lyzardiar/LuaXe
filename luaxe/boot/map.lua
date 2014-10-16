@@ -13,9 +13,7 @@ HaxeMap = {}
 ___inherit(HaxeMap, Object);
 HaxeMap.__index = HaxeMap;
 function HaxeMap.Map()
-	local r = {}
-	setmetatable(r, HaxeMap) 
-	return r
+	return setmetatable({}, HaxeMap)
 end
 
 function HaxeMap:get(self, key)
