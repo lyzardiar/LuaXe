@@ -525,7 +525,7 @@ class LuaGenerator
         result.add(buf.toString());
         result.add("\nend\n");
         result.add(bootStr);
-        result.add("\nexec()\n");
+        result.add("\nexec(); exec = nil\n");
         result.add(starter);
 
         sys.io.File.saveContent(api.outputFile, result.toString());        	
