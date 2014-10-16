@@ -49,7 +49,7 @@ function String:charCodeAt(index) -- Int -> Null<Int>
 end
 
 function String:indexOf(str, startIndex) -- String -> ?Int -> Int
-	local r = string.find(self, str, startIndex)
+	local r = string.find(self, str, startIndex, true)
   return r and (r - 1) or -1
 end
 
