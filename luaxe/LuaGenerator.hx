@@ -504,7 +504,6 @@ class LuaGenerator
 		boot .add( "\n" + sys.io.File.getContent('$path/boot/date.lua') );
 		if(hxClasses.has("List_List")) boot .add( "\n" + sys.io.File.getContent('$path/boot/list.lua') );
         /*if(hxClasses.has("haxe_Json_Json"))*/ boot .add( "\n" + sys.io.File.getContent('$path/boot/json.lua') );
-		boot .add( "\n" + sys.io.File.getContent('$path/boot/extern.lua') ); // TODO remove from *release*
 		boot .add( "\n" + sys.io.File.getContent('$path/boot/ereg.lua') ); // TODO remove from *release*
 
         #end
@@ -520,7 +519,6 @@ class LuaGenerator
         var result = new StringBuf();
 
         result.add(importsBuf.toString());
-        #if !bootless result.add(sys.io.File.getContent('$path/boot/preboot.lua')); #end
         result.add("\nfunction exec()\n");
         result.add(buf.toString());
         result.add("\nend\n");
