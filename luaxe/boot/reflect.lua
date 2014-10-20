@@ -1,9 +1,17 @@
 local Reflect = {};
 Reflect_Reflect = Reflect;
 
+function Reflect.setField(o, f, v)
+	if o and f then
+		o[f] = v
+	end
+end
+
 function Reflect.setProperty(o, f, v)
 	if o then
-		if o[f] then o[f] = v end
+		local t = "set_" .. f
+		if o[t] then o[t](o, v)
+		else Reflect.setField(o, f, v) end
 	end
 end
 
@@ -14,14 +22,12 @@ end
 
 function Reflect.isObject(v)
 	if v == nil then return false end
-	-- to-do: check for enums
 	
 	local t = type(v)
 	return t == "table" or t == "userdata"
 end
 
 function Reflect.hasField(o, f)
-	-- to-do
 	if o == nil or f == nil then return false end
 	return o[f] ~= nil
 end
@@ -29,8 +35,9 @@ end
 function Reflect.fields(o)
 	if o == nil then return nil end
 	local t = {}
+	t = setmetatable(t, Array_Array)
 	
-	for i, _ in pairs(o) do table.insert(t, i) end
+	for i, v in pairs(o) do table.insert(t, i) end
 	return t
 end
 
@@ -39,10 +46,6 @@ function Reflect.field(o, f)
 	if o[f] == nil then return nil end
 	
 	return o[f]
-end
-
-function Reflect.setField(o, f, v)
-	-- TODO
 end
 
 function Reflect.getProperty(o, f)
