@@ -10,6 +10,9 @@ class Lua
 
 	inline static public function setmetatable<T>(obj:T, mt):T
 	#if lua return (untyped __call__("setmetatable",obj,mt)); #else return null; #end
+
+	inline static public function hash(obj:Dynamic):Int
+	#if lua return cast untyped __hash__(obj); #else return 0; #end
 }
 
 /*
