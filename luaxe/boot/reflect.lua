@@ -64,6 +64,15 @@ function Reflect.copy(o)
 	return nil -- TODO
 end
 
+function Reflect.callMethod(o, func, args)
+	if o and func and args and o[func] then
+		local a = args:copy()
+		table.insert(a, 0, o)
+		return o[func](o, unpack(a))
+	end
+	return nil
+end
+
 function Reflect.compare(a, b)
 	-- to-do
 	if a == nil and b == nil then return 0 end
