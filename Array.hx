@@ -27,7 +27,7 @@ class Array<T> implements ArrayAccess<T> {
 	public function get_length():Int
 	if (untyped this[0]) return ((untyped __hash__)(this) + 1)
 	else return 0;
-	
+
 	public function new(?arg:Dynamic) : Void {
 		untyped __lua__(
 		"if(arg)then return setmetatable(arg or{},Array_Array)end"
@@ -136,7 +136,7 @@ class Array<T> implements ArrayAccess<T> {
 
 	@:keep public function remove(x : T) : Bool {
 		var result = indexOf(x);
-		if(result == -1) 
+		if(result == -1)
 		{
 			return false;
 		} else {
@@ -222,5 +222,5 @@ class Array<T> implements ArrayAccess<T> {
 		var result = [];
 		for(i in this) if(f(i)) result.push(i);
 		return result;
-	}	
+	}
 }

@@ -167,7 +167,7 @@ class LuaPrinter {
 		var head = printFunctionHead;
 		printFunctionHead = true;
 		// TODO avoid printing function head in other functions inside of constructor
-		
+
 		var body:String = (head?"function":"") + "(" + printArgs(func.args) + ")";
 
 		var returnSelf = true;
