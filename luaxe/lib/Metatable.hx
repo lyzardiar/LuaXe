@@ -1,24 +1,24 @@
 package luaxe.lib;
 
-extern class Metatable implements ArrayAccess<Dynamic>
+typedef Metatable =
 {
-	var __call:Dynamic;
-	var __mode:String;
-	var __metatable:Metatable;
-	var __index:Metatable->Dynamic->Dynamic;
-	var __newindex:Metatable->Dynamic->Dynamic->Void;
-	var __eq:Metatable->Dynamic->Bool;
-	var __add:Metatable->Dynamic->Dynamic;
-	var __lt:Metatable->Dynamic->Bool;
-	var __le:Metatable->Dynamic->Bool;
-	var __len:Void->Float;
-	var __gc:Dynamic->Void;
-	var __sub:Metatable-> Dynamic->Dynamic;
-	var __mul:Metatable->Dynamic->Dynamic;
-	var __div:Metatable->Dynamic->Dynamic;
-	var __mod:Metatable->Dynamic->Dynamic;
-	var __pow:Metatable->Dynamic->Dynamic;
-	var __concat:Metatable->Dynamic->String;
-	var __unm:Metatable->Dynamic;
-	var __tostring:Metatable->String;
+	?__call:Dynamic,
+	?__mode:String,
+	?__metatable:Metatable,
+	?__index:Dynamic->Dynamic->Dynamic,
+	?__newindex:Dynamic->Dynamic->Dynamic->Void,
+	?__eq:Dynamic->Dynamic->Bool,
+	?__add:Dynamic->Dynamic->Dynamic,
+	?__lt:Dynamic->Dynamic->Bool,
+	?__le:Dynamic->Dynamic->Bool,
+	?__len:Void->Float,
+	?__gc:Dynamic->Void,
+	?__sub:Dynamic-> Dynamic->Dynamic,
+	?__mul:Dynamic->Dynamic->Dynamic,
+	?__div:Dynamic->Dynamic->Dynamic,
+	?__mod:Dynamic->Dynamic->Dynamic,
+	?__pow:Dynamic->Dynamic->Dynamic,
+	?__concat:Dynamic->Dynamic->String,
+	?__unm:Dynamic->Dynamic,
+	?__tostring:Dynamic->String
 }
