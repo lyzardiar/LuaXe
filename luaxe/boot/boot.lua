@@ -25,6 +25,9 @@ end
 function Enum.__tostring(e)
 	return (e.tag or "") + (e.params and "(" .. table.concat(e.params, ",") .. ")" or rawget(e, 0))
 end
+
+-- BAD IDEA! BECAUSE OF LASY EXECUTION!
+-- MAKE TO INLINE FUNCTIONS!
 function _G.___ternar(cond,any,elses)
 	if(cond)then return any end
 	return elses
