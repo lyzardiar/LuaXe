@@ -11,6 +11,7 @@ class Lua
 	inline static public function setmetatable<T>(obj:T, mt:Class<Dynamic>):T
 	#if lua return (untyped __call__("setmetatable",obj,mt)); #else return null; #end
 
+	/* TODO: doc */
 	inline static public function setmetatabledef<T>(obj:T, mt:luaxe.lib.Metatable):T
 	#if lua return (untyped __call__("setmetatable",obj,mt)); #else return null; #end
 
