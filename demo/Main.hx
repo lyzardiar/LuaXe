@@ -51,5 +51,8 @@ class Main
 
 		// luaxe.Sys.hx is a replacement of Sys.hx
 		trace(Sys.time());
+
+		// Testing metatables:
+		Metatables.main();
 	}
 }
