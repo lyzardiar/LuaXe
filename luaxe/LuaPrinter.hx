@@ -126,7 +126,7 @@ class LuaPrinter {
 		return '"' + s.split("\n").join("\\n").split("\t").join("\\t").split("'").join("\\'").split('"').join("\\\"") #if sys .split("\x00").join("\\x00") #end + '"';
 	}
 
-	public function printConstant(c){
+	public function printConstant(c:TConstant){
 		lastConstIsString = false;
 		return switch(c) {
 			case TString(s): printString(s);
@@ -136,7 +136,7 @@ class LuaPrinter {
 			case TBool(false): "false";
 			case TInt(s): ""+s;
 			case TFloat(s): s;
-			case TSuper: '$superClass';
+			case TSuper: throw "Unreachable code";
 		}
 	}
 
@@ -312,9 +312,24 @@ class LuaPrinter {
 			return out;
 		}
 
-		var id = printExpr(e1);
-		//if(id == ("self.root_.set_nesting_level"))
-		//trace(e1);
+		var id;
+
+		switch [e1.expr, e1.t] {
+			case [TConst(TSuper), TInst(inst, _)]:
+				var args = toFuncIf();
+				return
+				LuaGenerator.getPath(inst.get()).replace(".","_") +
+				".super(self" + (args != ""? ", " + toFuncIf():"") + ")";
+
+			case [TField(ee = { expr: TConst(TSuper) }, FInstance(inst, func)), _]:
+				var args = toFuncIf();
+				return
+				LuaGenerator.getPath(inst.get()).replace(".","_") +
+				"." + func + "(self" + (args != ""? ", " + toFuncIf():"") + ")";
+
+			case _ :
+				id = printExpr(e1);
+		}
 
 		var result =  switch(id)
 		{
@@ -377,11 +392,6 @@ class LuaPrinter {
 				return r.replace(":new(", ".new(");
 			})();
 		}
-
-		// TODO fix super calls in non-constuctors, and pointing to another funcs
-		// TODO inline inheritance
-		//if(result.startsWith("super("))
-		//	result = '\t\t___inherit(self, ${superClass.replace(".", "_")}.new(${toFuncIf()}))';
 
 		return result;
 	}
