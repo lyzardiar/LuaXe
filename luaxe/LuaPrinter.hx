@@ -178,16 +178,20 @@ class LuaPrinter {
 		if(insideConstructor != null)
 		{
 			body += '\n${tabs}local self = setmetatable({ }, $insideConstructor)';
+			insideConstructor = null;
 		} else returnSelf = false;
 
 		switch (func.expr.expr) {
-			case TBlock(el) if (el.length == 0):
-			if (returnSelf) body += '\n${tabs}return self\n\tend';
-			else body += ' end';
-			case _:
-				body += opt(func.expr, printExpr, '\n${tabs}');
+			case TBlock([]):
+				if (returnSelf) body += '\n${tabs}return self\n\tend';
+				else body += ' end';
+
+			case TBlock(el):
+				body += '\n${tabs}' + print_TBlock(el);
 				if (returnSelf) body += '\n${tabs}return self';
 				body += '\n${_tabs}end';
+
+			case _: throw "Unreachable code";
 		}
 
 		tabs = _tabs;
@@ -278,8 +282,6 @@ class LuaPrinter {
 								case TUnop(OpDecrement, _, e):
 								var v = printExpr(e);
 								'$v = $v - 1';
-
-
 
 								case _: printExpr(ex);
 							} );
@@ -644,7 +646,8 @@ class LuaPrinter {
 		case TBlock([]): '';
 		case TBlock(el) if (el.length == 1): printShortFunction(printExprs(el, ';\n$tabs'));
 		case TBlock(el): //printExprs(el, ';\n$tabs');
-				var sep = ';\n$tabs';
+			print_TBlock(el);
+				/*var sep = ';\n$tabs';
 				var result = new StringBuf();
 				for(i in 0...el.length)
 				{
@@ -668,9 +671,9 @@ class LuaPrinter {
 					} );
 					if(i < el.length - 1) result .add( sep );
 				}
-				result.toString();
+				result.toString();*/
 
-		case TIf(econd, eif, eelse): printIfElse(econd, eif, eelse);
+		case TIf(econd, eif, eelse): print_TIf_Ternar(econd, eif, eelse);
 
 		case TWhile(econd, e1, true):
 			var _tabs = tabs; tabs += tabString;
@@ -815,6 +818,57 @@ class LuaPrinter {
 				case _: printExpr(ex);
 			} );
 			if(i < el.length - 1) result .add( sep );
+		}
+		return result.toString();
+	}
+
+	function print_TIf_Block(econd, eif, eelse) {
+		return printIfElse(econd, eif, eelse);
+	}
+
+	function print_TIf_Ternar(econd, eif, eelse) {
+		return switch (eif.expr) {
+			case TConst(TInt(z)): '(${printExpr(econd)} and ${z} or (${printExpr(eelse)}))';
+			case TConst(TBool(z)): '(${printExpr(econd)} and ${z} or (${printExpr(eelse)}))';
+			case TConst(TFloat(z)): '(${printExpr(econd)} and ${z} or (${printExpr(eelse)}))';
+			case TConst(TString(z)): '(${printExpr(econd)} and "${z}" or (${printExpr(eelse)}))';
+			case TConst(TNull): '(_G.___ternar(${printExpr(econd)}, nil, (${printExpr(eelse)})))'; // TODO
+			default: printIfElse(econd, eif, eelse); // TODO
+		}
+	}
+
+	public function print_TBlock(el:Array<TypedExpr>) {
+		var result = new StringBuf();
+		var ret = false;
+		for(i in 0...el.length)
+		{
+			var ex = el[i];
+			result .add( switch(ex.expr)
+			{
+				case TUnop(OpIncrement, _, e):
+					var v = printExpr(e);
+					'$v = $v + 1;';
+
+				case TUnop(OpDecrement, _, e):
+					var v = printExpr(e);
+					'$v = $v - 1;';
+
+				case TIf(econd, eif, eelse): print_TIf_Block(econd, eif, eelse);
+
+				case TReturn(null):
+					ret = true;
+					"return;";
+
+				case TReturn(eo):
+					ret = true;
+					"return " + printExpr(eo) + ";";
+
+				case TConst(_), TLocal(_): continue;
+
+				case _: printExpr(ex) + "";
+			} );
+			if(i < el.length - 1) result .add( '\n$tabs' );
+			if(ret) break;
 		}
 		return result.toString();
 	}
