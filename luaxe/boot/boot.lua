@@ -53,7 +53,9 @@ __typeof__ = type;
 
 haxe_Log_Log = {};
 function haxe_Log_Log.trace(a, i)
-	if(i and i.fileName)then
+	if(i and i.fileName and i.customParams)then
+		print(i.fileName + ":" + i.lineNumber + ": " + a + "," + i.customParams:join(","))
+	elseif(i and i.fileName)then
 		print(i.fileName + ":" + i.lineNumber + ": " + a)
 	else
 		print(a)
@@ -74,7 +76,7 @@ function ___bind(o,m)
  	end
 end
 
-function __Array(r) 
+function __Array(r)
 	return setmetatable(r, Array_Array)
 end
 
