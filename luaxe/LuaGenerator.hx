@@ -99,7 +99,7 @@ class LuaGenerator
 		}
 	}
 
-	function getPath(t : BaseType)
+	public static function getPath(t : BaseType)
 	{
 		var fullPath = t.name;
 
@@ -316,7 +316,7 @@ class LuaGenerator
 			if(c.interfaces.length > 0)
 			{
 				var me = this;
-				var inter = c.interfaces.map(function(i) return me.getPath(i.t.get())).join(",");
+				var inter = c.interfaces.map(function(i) return getPath(i.t.get())).join(",");
 				#if verbose print(' -- implements $inter'); #end
 			}
 
