@@ -388,10 +388,12 @@ class LuaGenerator
 		print('\n$p = {__super__ = Enum}');
 		newline();
 		print('\n$p.new = function(tag,index,params) return setmetatable({'+
+			'\n\t[0] = params[0],'+ // TODO all params
+			'\n\t[1] = index,'+
 			'\n\ttag = tag,'+
 			'\n\tindex = index,'+
 			'\n\tparams = params'+
-			'},Enum) end');
+			'\n},Enum) end');
 		newline();
 		#if verbose print('--$p(t, i, [p]):super(t, i, p);'); #end
 		newline();
@@ -403,7 +405,7 @@ class LuaGenerator
 			switch( c.type ) {
 				case TFun(args, _):
 					var sargs = args.map(function(a) return a.name).join(",");
-					print('function($sargs) return $p.new("${c.name}", ${c.index}, {[0]=$sargs}); end');
+					print('function(_,$sargs) return $p.new("${c.name}", ${c.index}, {[0]=$sargs}); end');
 				default:
 					print('setmetatable({[0]=${api.quoteString(c.name)}, [1]=${c.index}},Enum);');
 			}
