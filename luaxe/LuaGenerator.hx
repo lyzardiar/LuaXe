@@ -217,7 +217,6 @@ class LuaGenerator
 		"EReg_EReg",
 		"Enum_Enum",
 		"Type_Type",
-		"haxe_Json_Json",
 		"luaxe_Sys_Sys",
 
 		"haxe_ds_BalancedTree_TreeNode",
@@ -513,7 +512,6 @@ class LuaGenerator
 		if(hxClasses.has("Map_Map") || hxClasses.has("haxe_ds_IntMap_IntMap")) boot .add( "\n" + sys.io.File.getContent('$path/boot/map.lua') );
 		boot .add( "\n" + sys.io.File.getContent('$path/boot/date.lua') );
 		if(hxClasses.has("List_List")) boot .add( "\n" + sys.io.File.getContent('$path/boot/list.lua') );
-		/*if(hxClasses.has("haxe_Json_Json"))*/ boot .add( "\n" + sys.io.File.getContent('$path/boot/json.lua') );
 		boot .add( "\n" + sys.io.File.getContent('$path/boot/ereg.lua') ); // TODO remove from *release*
 
 		#end
