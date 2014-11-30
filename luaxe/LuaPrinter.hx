@@ -716,11 +716,11 @@ class LuaPrinter {
 
 		case TMeta(meta, e1): printMetadata(meta) + " " +printExpr(e1);
 
-		case TPatMatch: "" + e; // TODO WTF
-
 		case TTry(e1, catches): printTry(e1, catches);
 
 		case TEnumParameter( e1 /*: haxe.macro.TypedExpr */, ef /*: haxe.macro.EnumField*/ , index /*: Int */): "" + printExpr(e1) + '[$index]';
+
+		case _: throw ("Unsupported language feature: " + e);
 	};
 
 	inline function printShortFunction(value:String)
