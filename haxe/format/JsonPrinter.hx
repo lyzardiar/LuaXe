@@ -60,9 +60,9 @@ class JsonPrinter {
 				var minIndex = 1234567890;
 
 				untyped __lua__("for _k,_v in pairs(v) do
-								maxIndex = math.max(maxIndex,_k)
-								minIndex = math.min(minIndex,_k)
-								end;");
+							maxIndex = math.max(maxIndex,_k)
+							minIndex = math.min(minIndex,_k)
+							end;");
 
 				maxIndex++;
 				var last = maxIndex - 1;
@@ -72,12 +72,6 @@ class JsonPrinter {
 					write(i, v[i]);
 				}
 				add(']');
-			} else if( c == haxe.ds.StringMap ) {
-				var v : haxe.ds.StringMap<Dynamic> = v;
-				var o = {};
-				for( k in v.keys() )
-					Reflect.setField(o,k,v.get(k));
-				objString(o);
 			} else if( c == Date ) {
 				var v : Date = v;
 				quote(v.toString());

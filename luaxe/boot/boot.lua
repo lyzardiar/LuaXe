@@ -13,14 +13,14 @@ Enum = Enum or {}
 Enum_Enum = Enum_Enum or Enum
 Enum.__super__ = Enum
 
-function Enum.__index(e, i)
-	local params = rawget(e, "params")
-	if(params)then
-		return params[i]
-	else
-		return rawget(e, i)
-	end
-end
+--function Enum.__index(e, i)
+--	local params = rawget(e, "params")
+--	if(params)then
+--		return params[i]
+--	else
+--		return rawget(e, i)
+--	end
+--end
 
 function Enum.__tostring(e)
 	return (e.tag or "") + (e.params and "(" .. table.concat(e.params, ",") .. ")" or rawget(e, 0))

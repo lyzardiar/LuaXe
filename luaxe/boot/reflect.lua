@@ -22,7 +22,7 @@ end
 
 function Reflect.isObject(v)
 	if v == nil then return false end
-	
+
 	local t = type(v)
 	return t == "table" or t == "userdata"
 end
@@ -35,16 +35,18 @@ end
 function Reflect.fields(o)
 	if o == nil then return nil end
 	local t = {}
-	t = setmetatable(t, Array_Array)
-	
-	for i, v in pairs(o) do table.insert(t, i) end
-	return t
+	local ind = 0
+	for i, v in pairs(o) do
+		t[ind] = i;
+		ind = ind + 1
+	end
+	return setmetatable(t, Array_Array)
 end
 
 function Reflect.field(o, f)
 	if o == nil or f == nil then return nil end
 	if o[f] == nil then return nil end
-	
+
 	return o[f]
 end
 
@@ -77,9 +79,9 @@ function Reflect.compare(a, b)
 	-- to-do
 	if a == nil and b == nil then return 0 end
 	if type(a) ~= type(b) then return nil end
-	
+
 	local ta, tb = type(a), type(b)
-	
+
 	if ta == "number" then
 		if a < b then return -1
 		elseif a > b then return 1
