@@ -130,9 +130,8 @@ class Type {
 		if(t == "function") return TFunction; else
 		if(t == "table") {
 			var mt = luaxe.Lua.getmetatable(v);
-			if(mt == untyped Array_Array) return TClass(Array); else
-
-			return TObject;
+			if(mt == untyped Object) return TObject; else
+			return TClass(cast mt);
 		}
 
 
