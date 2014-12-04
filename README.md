@@ -1,7 +1,7 @@
 LuaXe
 =====
 
-Lua target for Haxe language
+![lua](https://cloud.githubusercontent.com/assets/3642643/5304500/5051797e-7c04-11e4-9c33-9c7290194a04.png)
 
 <a href="http://peyty.github.io#donate"><img src="http://peyty.github.io/images/donate.png"></a>
 <a href="http://peyty.github.io#hireme"><img src="http://peyty.github.io/images/hireme.png"></a>
@@ -143,5 +143,5 @@ trace(inst.X);
 Links
 =====
 https://github.com/frabbit/hx2python
-https://bitbucket.org/AndrewVernon/hx2dart
-http://api.haxe.org/
+<br>https://bitbucket.org/AndrewVernon/hx2dart
+<br>http://api.haxe.org/
