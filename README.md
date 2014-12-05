@@ -26,13 +26,12 @@ Quick update:
 ```
 haxelib update luaxe
 ```
-First, you need to set JS target in your HXML file: ```-js bin/hx.lua``` Note to set *.lua* file type. Than, add LuaXe lib: ```-lib luaxe``` Add LuaXe macro: ```--macro luaxe.LuaGenerator.use()```. LuaXe folder contains patched std libs.
+First, you need to set JS target in your HXML file: ```-js bin/hx.lua``` Note to set *.lua* file type. Than, add LuaXe lib: ```-lib luaxe``` Build macro added automatically: ```--macro luaxe.LuaGenerator.use()```. Library folder also contains patched std libs.
 Complete HXML file:
 ```
 -main Main
 -lib luaxe
 -js bin/hx.lua
---macro luaxe.LuaGenerator.use()
 -dce full
 --connect 6000
 ```
