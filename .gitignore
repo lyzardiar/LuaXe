@@ -62,3 +62,5 @@ dump
 ast.json
 
 *.sublime-workspace
+
+build.hxml
