@@ -687,16 +687,19 @@ class LuaPrinter {
 		case TWhile(econd, e1, true):
 			var _tabs = tabs; tabs += tabString;
 			var _cond = 'while ${printExpr(econd)} do';
-			_continueLabel = true; // <-- buggy for now
+			var oldContLbl = _continueLabel;
 			var _state = '\n${tabs}${printExpr(e1)}\n${_tabs}end';
 			tabs = _tabs;
-			_cond + (_continueLabel ? " ::continue::" : "") + _state;
+			if(_continueLabel) _cond += " ::continue::";
+			_continueLabel = oldContLbl;
+			_cond + _state;
 
 		case TWhile(econd, e1, false):
 			var _tabs = tabs; tabs += tabString;
-			_continueLabel = true; // <-- buggy for now
+			var oldContLbl = _continueLabel;
 			var s = 'repeat\n${tabs}${printExpr(e1)}';
 			if (_continueLabel) s += '\n${tabs}::continue::';
+			_continueLabel = oldContLbl;
 			s += '\n${_tabs}until not ${printExpr(econd)}';
 			tabs = _tabs;
 			s;
