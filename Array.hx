@@ -104,7 +104,6 @@ class Array<T> implements ArrayAccess<T> {
 
 	@:runtime public function pop() : Null<T> {
 		var length = (untyped __hash__)(this);
-		if(length == 0) return null;
 		var last = untyped this[length];
 		untyped this[length] = null;
 		return last;
@@ -112,7 +111,8 @@ class Array<T> implements ArrayAccess<T> {
 
 	@:keep @:runtime public function push(elem:T) : Int {
 		var length = (untyped __hash__)(this);
-		(untyped __lua__('table.insert'))(this, length+1, elem);
+		if (untyped this[0]) length = length + 1;
+		untyped this[length] = elem;
 		return length;
 	}
 
