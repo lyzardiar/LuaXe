@@ -25,8 +25,14 @@ class Array<T> implements ArrayAccess<T> {
 	public var length(get,never) : Int;
 
 	public function get_length():Int
-	if (untyped this[0]) return ((untyped __hash__)(this) + 1)
-	else return 0;
+	{
+		var len = 0;
+		untyped __lua__(
+		"for k in pairs(self) do
+			len = math.max(len, k+1)
+		end");
+		return len;
+	}
 
 	public function new(?arg:Dynamic) : Void {
 		untyped __lua__(
