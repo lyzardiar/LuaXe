@@ -516,6 +516,13 @@ class LuaGenerator
 
 		#end
 
+		#if luabootfile
+		var bootfile = api.outputFile.substring(0,api.outputFile.lastIndexOf(".")) + "-boot";
+		sys.io.File.saveContent(bootfile + ".lua", boot.toString());
+		boot = new StringBuf();
+		boot.add("require(\"" + haxe.io.Path.withoutDirectory(bootfile) + "\")");
+		#end
+
 		var r;
 
 		r = ~/\n[ \t]{0,}--[^\n]+/g;
