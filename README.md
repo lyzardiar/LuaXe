@@ -46,6 +46,11 @@ or:
 -cmd /usr/local/bin/lua bin/hx.lua
 ```
 
+Compiler
+=====
+- Separate boot file:
+`-D luabootfile` forces LuaXe to create `youfile-boot.lua` and import it with `require("yourfile-boot")`. File `youfile.lua` would then contain only user classes.
+
 Magic
 =====
 Untyped:
