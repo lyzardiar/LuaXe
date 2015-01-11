@@ -582,7 +582,7 @@ class LuaPrinter {
 
 		case TNew(tp, _, el):
 			var id:String = printBaseType(tp.get());
-			'${id}.new(${printExprs(el,", ")})';
+			'${id}${tp.get().meta.has("nonew")?"":".new"}(${printExprs(el,", ")})';
 
 		case TBinop(OpXor, e1, e2):
 		{
