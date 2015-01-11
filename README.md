@@ -101,6 +101,25 @@ function Main_Main.main(  )
 	love.graphics.setColor(0, 0, 0, 0)
 end
 ```
+If you want to use name of class as a constructor, use meta **@nonew**
+
+```haxe
+class Main {
+ static function main() {
+  var vec = new Vector3(1, 2, 3);
+ }
+}
+
+@:native("Vector3") @nonew private extern class Vector3 {
+	public function new(x:Float,y:Float,z:Float);
+}
+```
+Outputs:
+```lua
+function Main_Main.main(  )
+	local vec = Vector3(1, 2, 3) -- NOT "Vector3.new(...)"
+end
+```
 
 External Classes Creation
 =====
