@@ -451,10 +451,18 @@ class LuaPrinter {
 
 	function printBaseType(tp:BaseType):String
 	{
-		if(tp.isExtern == true && tp.meta.has("dotpath"))
-		{
-			return (tp.pack.length > 0 ? tp.pack.join(".") + "." : "") + tp.name;
-		} else
+		if(tp.isExtern == true) {
+			if(tp.meta.has(":native"))
+			for(meta in tp.meta.get())
+				if(meta.name == ":native")
+					for(param in meta.params)
+						switch(param.expr){
+							case EConst(CString(s)): return s;
+							default:
+						}
+
+			if(tp.meta.has("dotpath")) return (tp.pack.length > 0 ? tp.pack.join(".") + "." : "") + tp.name;
+		}
 		return (tp.module.length > 0 ? tp.module.replace(".", "_") + "_" : "") + tp.name;
 	}
 
