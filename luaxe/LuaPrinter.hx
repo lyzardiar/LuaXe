@@ -253,7 +253,15 @@ class LuaPrinter {
 					}
 			};
 
-			case FStatic(_,cf): "." + cf.get().name;
+			case FStatic(_,cf):
+				if(cf.get().meta.has(":native"))
+					"." +
+					// little hack...
+					switch (cf.get().meta.get()[0].params[0].expr) {
+						case EConst(CString(s)): s;
+						default: cf.get().name;
+					}
+				else "." + cf.get().name;
 			case FAnon(cf): "." + cf.get().name;
 			case FDynamic(s): "." + s;
 			case FClosure(_,cf): closure = true; "." + cf.get().name;
