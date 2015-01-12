@@ -358,6 +358,8 @@ class LuaPrinter {
 				return extractString(el[0]);
 			case "__hash__":
 				'#${printExpr(el.shift())}';
+			case "__pack__":
+				'{${printExpr(el.shift())}}';
 			case "__call__":
 				var func = printExpr(el.shift());
 				if(func.indexOf("\"") == 0 || func.indexOf("\'") == 0)
