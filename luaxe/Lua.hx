@@ -1,25 +1,24 @@
 package luaxe;
 
 // TODO http://developer.coronalabs.com/reference/index/assert
-// inline + fallback to Haxe
 
 class Lua
 {
 	inline static public function eval(code:String):Dynamic
-	#if lua return (untyped __global__(dostring, code)); #else return null; #end
+	return (untyped __global__(dostring, code));
 
 	inline static public function setmetatable<T>(obj:T, mt:Class<Dynamic>):T
-	#if lua return (untyped __call__("setmetatable",obj,mt)); #else return null; #end
+	return (untyped __call__("setmetatable",obj,mt));
 
 	/* TODO: doc */
 	inline static public function setmetatabledef<T>(obj:T, mt:luaxe.lib.Metatable):T
-	#if lua return (untyped __call__("setmetatable",obj,mt)); #else return null; #end
+	return (untyped __call__("setmetatable",obj,mt));
 
 	inline static public function getmetatable<T>(obj:T):luaxe.lib.Metatable
-	#if lua return (untyped __call__("getmetatable",obj)); #else return null; #end
+	return (untyped __call__("getmetatable",obj));
 
 	inline static public function hash(obj:Dynamic):Int
-	#if lua return cast untyped __hash__(obj); #else return 0; #end
+	return cast untyped __hash__(obj);
 }
 
 /*
