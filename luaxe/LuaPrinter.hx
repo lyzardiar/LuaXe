@@ -624,6 +624,27 @@ class LuaPrinter {
 			'bit.bor(${printExpr(e1)}, ${printExpr(e2)})';
 		};
 
+		/** var1 = var2 = var3 = ... **/
+		case TBinop(OpAssign, e1, e2 = { expr : TBinop(OpAssign | OpAssignOp(_), ae1, ae2)}):
+			'${printExpr(e2)}\n$tabs${printExpr(e1)} = ${printExpr(ae1)}';
+
+		/** var1 += var2 *= var3 /= ... **/
+		case TBinop(OpAssignOp(op), e1, e2 = { expr : TBinop(OpAssign | OpAssignOp(_), ae1, ae2)}):
+		{
+			var ex1 = printExpr(e1);
+			var ae1 = printExpr(ae1);
+			'${printExpr(e2)}\n$tabs$ex1 = '
+			 + switch (op) {
+				case OpOr:   'bit.bor(${ex1}, $ae1)';
+				case OpUShr: 'bit.arshift(${ex1}, $ae1)';
+				case OpShl:  'bit.lshift(${ex1}, $ae1)';
+				case OpAnd:  'bit.band(${ex1}, $ae1)';
+				case OpShr:  'bit.rshift(${ex1}, $ae1)';
+				case OpXor:  'bit.bxor(${ex1}, $ae1)';
+				case _: '$ex1 ${printBinop(op)} ($ae1)';
+			}
+		}
+
 		case TBinop(OpAssignOp(op), e1, e2):
 		{
 			var ex1 = printExpr(e1);
@@ -634,7 +655,7 @@ class LuaPrinter {
 				case OpAnd:  'bit.band(${ex1}, ${printExpr(e2)})';
 				case OpShr:  'bit.rshift(${ex1}, ${printExpr(e2)})';
 				case OpXor:  'bit.bxor(${ex1}, ${printExpr(e2)})';
-				case _: '${ex1} ${printBinop(op)} ${printExpr(e2)}';
+				case _: '$ex1 ${printBinop(op)} (${printExpr(e2)})';
 			}
 		};
 
@@ -654,6 +675,14 @@ class LuaPrinter {
 			${printExpr(e2)}
 		end';
 
+		case TVar(v,e) if(e != null && e.expr.match(TBinop(OpAssign|OpAssignOp(_),_,_))):
+		switch (e.expr) {
+			case TBinop(OpAssign|OpAssignOp(_), ae1, _):
+				'${printExpr(e)}\n$tabs' +
+				'local ${handleKeywords(v.name)} = ${printExpr(ae1)}';
+			case _: throw "Unreachable code";
+		}
+
 		case TVar(v,e)
 		if(""+v.t == "TAbstract(Int,[])" && e != null):
 		var result = "local " + printVar(v, e);
@@ -668,6 +697,7 @@ class LuaPrinter {
 		}
 		result;
 
+		case TVar(v,e) if(e == null): 'local ${handleKeywords(v.name)};';
 		case TVar(v,e): "local " + printVar(v, e);
 
 		case TBlock([]): '';
