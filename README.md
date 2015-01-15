@@ -10,9 +10,9 @@ State: *pre-alpha*
 =====
 Primarily LuaJIT -> make super-optimized portable Haxe target!
 
-I have some working *fast* (beats V8 and Neko) code otput.
+I have some working *fast* (beats V8 and Neko) code output.
 
-**Note:** dont beleave benchmarks from *demo* folder, they show low performance just because of immature code generator. Manually tweaked code works really well. Happily, this process would be automated soon.
+**Note:** don't beleave benchmarks from *demo* folder, they show low performance just because of immature code generator. Manually tweaked code works really well. Happily, this process would be automated soon.
 
 Require Haxe Compiler 3.1, Lua 5.2 or LuaJIT 2
 
