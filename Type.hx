@@ -48,7 +48,7 @@ class Type {
 	}
 
 	public static function createEmptyInstance<T>( cl : Class<T> ) : T {
-		return null;
+		return untyped __lua__("(setmetatable({}, cl))");
 	}
 
 	public static function allEnums<T>( e : Enum<T> ) : Array<T> {
