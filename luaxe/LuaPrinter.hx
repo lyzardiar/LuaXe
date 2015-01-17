@@ -1,5 +1,6 @@
 /*
  * Copyright (C)2005-2014 Haxe Foundation
+ * Copyright (C)2014-2015 Oleg Petrenko
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -19,7 +20,6 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
-
 package luaxe;
 
 #if (macro)
@@ -47,46 +47,28 @@ using StringTools;
 
 class LuaPrinter {
 
-	public static var insideConstructor:String = null;
-	public static var superClass:String = null;
-
 	var tabs:String;
 	var tabString:String;
 	public static var currentPath = "";
 	public static var lastConstIsString = false;
-
-	// laguage keywords:
-	static public var keywords = [
-	"and", "break", "do", "else", "elseif", "end", "false", "for", "function", "goto", "if", "in",
-	"local", "nil", "not", "or", "repeat", "return", "then", "true", "until", "while", "_G", "_r"
+	public static var insideConstructor:String = null;
+	public static var superClass:String = null;
+	public static var keywords = [ /** Laguage & reserved keywords **/
+		"and", "break", "do", "else", "elseif", "end", "false", "for", "function", "goto", "if", "in",
+		"local", "nil", "not", "or", "repeat", "return", "then", "true", "until", "while", "_G", "_r"
 	];
-
-	// top-level reserved:
-	static public var reserved = [
-	"setmetatable"
-	].concat(keywords);
-
 	public static var pathHack = new StringMap();
+	public static var printFunctionHead = true;
 
 	inline public static function handleKeywords(name)
-	{
-		return (reserved.indexOf(name) != -1) ? "var_" + name : name;
-	}
+	return keywords.indexOf(name) != -1 ? "var_" + name : name;
 
 	public function new(?tabString = "\t") {
 		tabs = "\t";
 		this.tabString = tabString;
 	}
 
-	public function printUnop(op:Unop, val:String = null, inFront:Bool = false):String
-	if(val == null)
-	return switch(op) {
-		case OpIncrement: "++";
-		case OpDecrement: "--";
-		case OpNot: "!";
-		case OpNeg: "-";
-		default: throw "Unreachable code";
-	}else
+	public function printUnop(op:Unop, val:String, inFront:Bool):String
 	return switch(op) {
 		case OpIncrement: inFront?
 		'(function () local _r = $val or 0; $val = _r + 1; return _r end)()'
@@ -116,8 +98,6 @@ class LuaPrinter {
 		case OpBoolAnd: " and ";// "&&" in Lua
 		case OpBoolOr: " or ";// "||" in Lua
 		case OpMod: "%";
-		case OpInterval: "...";
-		case OpArrow: "=>";
 		default: throw "Unreachable code: printBinop " + op;
 	}
 
@@ -135,7 +115,7 @@ class LuaPrinter {
 		'"';
 	}
 
-	public function printConstant(c:TConstant){
+	public function printConstant(c:TConstant) {
 		lastConstIsString = false;
 		return switch(c) {
 			case TString(s): printString(s);
@@ -149,16 +129,6 @@ class LuaPrinter {
 		}
 	}
 
-	public function printAccess(access:Access) return switch(access) {
-		case AStatic: "static";
-		case APublic: "public";
-		case APrivate: "private";
-		case AOverride: "override";
-		case AInline: "inline";
-		case ADynamic: "dynamic";
-		case AMacro: "macro";
-	}
-
 	public function printArgs(args:Array<{value:Null<TConstant>, v:TVar}>)
 	{
 		var argString = null;
@@ -170,7 +140,6 @@ class LuaPrinter {
 		return (argString == null?"":argString);
 	}
 
-	public static var printFunctionHead = true;
 	public function printFunction(func:TFunc)
 	{
 		var head = printFunctionHead;
@@ -209,9 +178,7 @@ class LuaPrinter {
 	}
 
 	inline public function printVar(v:TVar, expr:Null<TypedExpr>)
-	{
 		return handleKeywords(v.name) + opt(expr, printExpr, " = ");
-	}
 
 	function printField(e1:TypedExpr, fa:FieldAccess, isAssign:Bool = false)
 	{
@@ -244,7 +211,6 @@ class LuaPrinter {
 						case "length": '#($obj)';
 						case _: obj + "." + n;
 					});
-
 
 				case _:
 					switch (cf.get().kind) {
@@ -299,6 +265,8 @@ class LuaPrinter {
 								case TUnop(OpDecrement, _, e):
 								var v = printExpr(e);
 								'$v = $v - 1';
+
+								case TIf(e,i,el): print_TIf_Block(e,i,el);
 
 								case _: printExpr(ex);
 							} );
@@ -355,7 +323,11 @@ class LuaPrinter {
 			case "trace" :
 				formatPrintCall(el);
 			case "__lua__", "___lua___":
-				return extractString(el[0]);
+				return switch(el[0].expr)
+				{
+					case TConst(TString(s)):s;
+					default:throw "Unreachable code";
+				}
 			case "__hash__":
 				'#${printExpr(el.shift())}';
 			case "__pack__":
@@ -415,15 +387,6 @@ class LuaPrinter {
 		}
 
 		return result;
-	}
-
-	function extractString(e:haxe.macro.TypedExpr)
-	{
-		return switch(e.expr)
-		{
-			case TConst(TString(s)):s;
-			default:throw "Unreachable code";
-		}
 	}
 
 	function formatPrintCall(el:Array<TypedExpr>)
@@ -546,7 +509,7 @@ class LuaPrinter {
 	var _insideCall = false;
 
 	public function printExpr(e:TypedExpr)
-		return e == null ? null : switch(e.expr) {
+		return (e == null) ? "" : switch(e.expr) {
 
 		case TConst(c): printConstant(c);
 
@@ -591,38 +554,25 @@ class LuaPrinter {
 		case TCall(e1, el): printCall(e1, el);
 
 		case TNew(tp, _, el):
-			var id:String = printBaseType(tp.get());
-			'${id}${tp.get().meta.has("nonew")?"":".new"}(${printExprs(el,", ")})';
+			'${printBaseType(tp.get())}${tp.get().meta.has("nonew")?"":".new"}(${printExprs(el,", ")})';
 
 		case TBinop(OpXor, e1, e2):
-		{
 			'bit.bxor(${printExpr(e1)}, ${printExpr(e2)})';
-		};
 
 		case TBinop(OpAnd, e1, e2):
-		{
 			'bit.band(${printExpr(e1)}, ${printExpr(e2)})';
-		};
 
 		case TBinop(OpShl, e1, e2):
-		{
 			'bit.lshift(${printExpr(e1)}, ${printExpr(e2)})';
-		};
 
 		case TBinop(OpShr, e1, e2):
-		{
 			'bit.rshift(${printExpr(e1)}, ${printExpr(e2)})';
-		};
 
 		case TBinop(OpUShr, e1, e2):
-		{
 			'bit.arshift(${printExpr(e1)}, ${printExpr(e2)})';
-		};
 
 		case TBinop(OpOr, e1, e2):
-		{
 			'bit.bor(${printExpr(e1)}, ${printExpr(e2)})';
-		};
 
 		/** var1 = var2 = var3 = ... **/
 		case TBinop(OpAssign, e1, e2 = { expr : TBinop(OpAssign | OpAssignOp(_), ae1, ae2)}):
@@ -648,7 +598,7 @@ class LuaPrinter {
 		case TBinop(OpAssignOp(op), e1, e2):
 		{
 			var ex1 = printExpr(e1);
-			'${ex1} = ' + switch (op) {
+			'$ex1 = ' + switch (op) {
 				case OpOr:   'bit.bor(${ex1}, ${printExpr(e2)})';
 				case OpUShr: 'bit.arshift(${ex1}, ${printExpr(e2)})';
 				case OpShl:  'bit.lshift(${ex1}, ${printExpr(e2)})';
@@ -702,33 +652,7 @@ class LuaPrinter {
 
 		case TBlock([]): '';
 		case TBlock(el) if (el.length == 1): printShortFunction(printExprs(el, ';\n$tabs'));
-		case TBlock(el): //printExprs(el, ';\n$tabs');
-			print_TBlock(el);
-				/*var sep = ';\n$tabs';
-				var result = new StringBuf();
-				for(i in 0...el.length)
-				{
-					var ex = el[i];
-					result .add( switch(ex.expr)
-					{
-						// fixes "floating" vars
-						case TConst(TInt(z)): '-- $z';
-						case TConst(TFloat(z)): '-- $z';
-						case TConst(TBool(z)): '-- $z';
-						case TConst(TNull): '-- nil';
-						case TLocal(z): '-- ${z.name}';
-
-						case TUnop(OpIncrement, _, e):
-						var v = printExpr(e);
-						'$v = $v + 1';
-						case TUnop(OpDecrement, _, e):
-						var v = printExpr(e);
-						'$v = $v - 1';
-						case _: printExpr(ex);
-					} );
-					if(i < el.length - 1) result .add( sep );
-				}
-				result.toString();*/
+		case TBlock(el): print_TBlock(el);
 
 		case TIf(econd, eif, eelse): print_TIf_Ternar(econd, eif, eelse);
 
@@ -752,7 +676,7 @@ class LuaPrinter {
 			tabs = _tabs;
 			s;
 
-		case TSwitch(e, cases, edef):  printSwitch(e, cases, edef);
+		case TSwitch(e, cases, edef): printSwitch(e, cases, edef);
 
 		case TReturn(eo): "return" + opt(eo, printExpr, " ");
 
@@ -775,10 +699,7 @@ class LuaPrinter {
 	};
 
 	inline function printShortFunction(value:String)
-	{
-		var hasReturn = value.indexOf("return ") == 0;
-		return value + (hasReturn ? ";" : "");
-	}
+		return value + (value.indexOf("return ") == 0 ? ";" : "");
 
 	function printTry(e1:haxe.macro.TypedExpr, catches: Array<{ v : haxe.macro.TVar, expr : haxe.macro.TypedExpr }>)
 	{

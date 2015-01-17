@@ -1,5 +1,6 @@
 /*
  * Copyright (C)2005-2012 Haxe Foundation
+ * Copyright (C)2014-2015 Oleg Petrenko
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -18,8 +19,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
- *
- *
  */
 package luaxe;
 
@@ -36,67 +35,79 @@ using StringTools;
 
 class LuaGenerator
 {
-	static var imports = [];
 	var api : JSGenApi;
-	var buf : StringBuf;
-	static var hxClasses:Array<String> = [];
+	var buf = new StringBuf();
+	var LP = new LuaPrinter();
+	var props:Array<String> = [];
+	var hxClasses:Array<String> = []; /** List of all generated classes **/
+	var imports = []; /** Imports via @:require meta **/
+	var indentCount = 0; /** Identation tabs count **/
 
-	public function new(api)
-	{
-		this.api = api;
-		buf = new StringBuf();
-		api.setTypeAccessor(getType);
-	}
+	/** These classes are not printed **/
+	var ignorance = [
+		// top classes:
+		// TODO: move up and uncomment when implemented
+		"String_String",
+		"HxOverrides_HxOverrides",
+		"Std_Std",
+		"js_Boot_Boot",
+		"haxe_Log_Log",
+		"StringTools_StringTools",
+		"EReg_EReg",
+		"Enum_Enum",
+		"luaxe_Sys_Sys",
+
+		"haxe_ds_BalancedTree_TreeNode",
+		"haxe_ds_BalancedTree_BalancedTree",
+		"haxe_ds_ObjectMap",
+		"haxe_io_Input_Input",
+		"haxe_io_BytesInput_BytesInput",
+
+		// temporal fix:
+
+		"Class_Class",
+		"Date_Date",
+		"DateTools_DateTools",
+		"EnumValue_EnumValue",
+		"List_List",
+		"Map_Map",
+		"Math_Math",
+		"Reflect_Reflect",
+		"StdTypes_StdTypes",
+		"UInt_UInt",
+		"Xml_Xml",
+		"haxe_ds_IntMap_IntMap",
+		"Map_IMap",
+	];
 
 	inline function getType(t : Type)
-	{
-		return switch(t) {
-			case TInst(c, _): getPath(c.get());
-			case TEnum(e, _): getPath(e.get());
-			default: throw "assert";
-		};
-	}
+	return switch(t) {
+		case TInst(c, _): getPath(c.get());
+		case TEnum(e, _): getPath(e.get());
+		default: throw "Unknown type for getType";
+	};
 
-	inline function print(str)
-	{
-		buf.add(str);
-	}
+	inline function print(str) buf.add(str);
 
 	inline function newline()
 	{
 		print("\n");
 		var x = indentCount;
-		while(x-- > 0)	print("\t");
+		while(x-- > 0) print("\t");
 	}
 
-	var LP = new LuaPrinter();
-	inline function genExpr(e)
-	{
-		var expr:haxe.macro.TypedExpr = e;
-		var exprString = LP.printExpr(expr);
-		//print(exprString.replace("super(", "super.init("));
-		print(exprString);
-	}
+	inline function genExpr(e:TypedExpr) print(LP.printExpr(e));
 
-	inline function field(p : String)
-	{
-		return LuaPrinter.handleKeywords(p);
-	}
-
-	static var classCount = 0;
+	inline function field(p : String) return LuaPrinter.handleKeywords(p);
 
 	inline function genPathHacks(t:Type)
-	{
-		switch( t ) {
-			case TInst(c, _):
-				var c = c.get();
-				if(!c.isExtern)classCount++;
-				getPath(c);
-			case TEnum(r, _):
-				var e = r.get();
-				getPath(e);
-			default:
-		}
+	switch( t ) {
+		case TInst(c, _):
+			getPath(c.get());
+		case TEnum(r, _):
+			var e = r.get();
+			getPath(e);
+		default:
 	}
 
 	public static function getPath(t : BaseType)
@@ -106,33 +117,24 @@ class LuaGenerator
 		if(t.pack.length > 0)
 		{
 			var dotPath = t.pack.join(".") + "." + t.name;
-			fullPath =  t.pack.join("_") + "_" + t.name;
+			fullPath = t.pack.join("_") + "_" + t.name;
 
 			if(!LuaPrinter.pathHack.exists(dotPath))
 				LuaPrinter.pathHack.set(dotPath, fullPath);
 		}
 
-	//	if(t.module != t.name)   //TODO(av) see what this does with sub classes in packages
-		{
-			var modulePath = t.module + "." + t.name;
-			if(!LuaPrinter.pathHack.exists(modulePath))
-				LuaPrinter.pathHack.set(modulePath, t.name);
-		}
+		var modulePath = t.module + "." + t.name;
+		if(!LuaPrinter.pathHack.exists(modulePath))
+			LuaPrinter.pathHack.set(modulePath, t.name);
+
 		return t.module + "_" + t.name;
-		return fullPath;
 	}
 
 	inline function checkFieldName(c : ClassType, f : ClassField)
-	{
-		if(luaxe.LuaPrinter.keywords.indexOf(f.name) > -1)
-			Context.error("The *class* field named " + f.name + " is not allowed in Lua", c.pos);
-	}
+	if(luaxe.LuaPrinter.keywords.indexOf(f.name) > -1)
+		Context.error("The *class* field named " + f.name + " is not allowed in Lua", c.pos);
 
-	var props:Array<String> = [];
-	inline function addPropToClass(name:String)
-	{
-		props.push(name);
-	}
+	inline function addPropToClass(name:String) props.push(name);
 
 	function genClassField(c : ClassType, p : String, f : ClassField)
 	{
@@ -175,18 +177,13 @@ class LuaGenerator
 
 	function genStaticField(c : ClassType, p : String, f : ClassField)
 	{
-		var classes = classCount > 1;
-
 		checkFieldName(c, f);
-
-		var stat = classCount > 1 ? 'static' : "";
 
 		var field = field(f.name);
 		var e = f.expr();
 		if(e == null)
 		{
-			#if verbose print('--$stat var $field;'); //TODO(av) initialisation of static vars if needed
-			#end
+			#if verbose print('--static var $field;'); #end // TODO initialisation of static vars if needed
 			newline();
 		}
 		else switch( f.kind ) {
@@ -201,48 +198,7 @@ class LuaGenerator
 				print(";");
 				newline();
 		}
-
 	}
-
-	var ignorance = [
-		// top classes:
-		// TODO: move up and uncomment when implemented
-		"String_String",
-		//"Array_Array",
-		"HxOverrides_HxOverrides",
-		"Std_Std",
-		"js_Boot_Boot",
-		"haxe_Log_Log",
-		"StringTools_StringTools",
-		"EReg_EReg",
-		"Enum_Enum",
-		"luaxe_Sys_Sys",
-
-		"haxe_ds_BalancedTree_TreeNode",
-		"haxe_ds_BalancedTree_BalancedTree",
-		"haxe_ds_ObjectMap",
-		"haxe_io_Input_Input",
-		"haxe_io_BytesInput_BytesInput",
-
-		// temporal fix:
-
-		"Class_Class",
-		"Date_Date",
-		"DateTools_DateTools",
-		"EnumValue_EnumValue",
-		//"IntIterator_IntIterator",
-		//"Lambda_Lambda",
-		"List_List",
-		"Map_Map",
-		"Math_Math",
-		"Reflect_Reflect",
-		"StdTypes_StdTypes",
-		//"StringBuf", "StringBuf_StringBuf",
-		"UInt_UInt",
-		"Xml_Xml",
-		"haxe_ds_IntMap_IntMap",
-		"Map_IMap",
-	];
 
 	function genClass(c : ClassType)
 	{
@@ -262,7 +218,7 @@ class LuaGenerator
 			} else
 			if(meta.name == ":remove")
 			{
-				return;
+				return ;
 			}
 		}
 
@@ -274,52 +230,49 @@ class LuaGenerator
 
 		LuaPrinter.currentPath = p + ".";
 
-		if(classCount > 0)
+		var psup:String = null;
+		LuaPrinter.superClass = null;
+		if(c.superClass != null)
 		{
-			var psup:String = null;
-			LuaPrinter.superClass = null;
-			if(c.superClass != null)
-			{
-				psup = getPath(c.superClass.t.get());
-				#if verbose print('-- class $p extends $psup'); #end
-				LuaPrinter.superClass = psup;
-			} else {
-				#if verbose print('-- class $p'); #end
-			}
-
-			if(ignorance.has(p))
-			{
-				if(!hxClasses.has(p)) hxClasses.push(p);
-				#if verbose print(' ignored --\n'); #end
-				return ;
-			}
-
-			if(c.isInterface)
-			{
-				#if verbose print('-- abstract class $p'); #end
-			}
-			else
-				{
-					print('\n$p = {};');
-					if(psup != null)
-					print('\n___inherit($p, ${psup});'.replace(".", "_"));
-					else
-					print('\n___inherit($p, Object);'.replace(".", "_"));
-
-					print('\n$p.__name__ = "$__name__";');
-
-					print('\n$p.__index = $p;');
-				}
-
-			if(c.interfaces.length > 0)
-			{
-				var me = this;
-				var inter = c.interfaces.map(function(i) return getPath(i.t.get())).join(",");
-				#if verbose print(' -- implements $inter'); #end
-			}
-
-			openBlock();
+			psup = getPath(c.superClass.t.get());
+			#if verbose print('-- class $p extends $psup'); #end
+			LuaPrinter.superClass = psup;
+		} else {
+			#if verbose print('-- class $p'); #end
 		}
+
+		if(ignorance.has(p))
+		{
+			if(!hxClasses.has(p)) hxClasses.push(p);
+			#if verbose print(' ignored --\n'); #end
+			return ;
+		}
+
+		if(c.isInterface)
+		{
+			#if verbose print('-- abstract class $p'); #end
+		}
+		else
+		{
+			print('\n$p = {};');
+			if(psup != null)
+			print('\n___inherit($p, ${psup});'.replace(".", "_"));
+			else
+			print('\n___inherit($p, Object);'.replace(".", "_"));
+
+			print('\n$p.__name__ = "$__name__";');
+
+			print('\n$p.__index = $p;');
+		}
+
+		if(c.interfaces.length > 0)
+		{
+			var me = this;
+			var inter = c.interfaces.map(function(i) return getPath(i.t.get())).join(",");
+			#if verbose print(' -- implements $inter'); #end
+		}
+
+		openBlock();
 
 		if(c.constructor != null)
 		{
@@ -341,8 +294,7 @@ class LuaGenerator
 			newline();
 		}
 
-		for(f in c.statics.get())
-			genStaticField(c, p, f);
+		for(f in c.statics.get()) genStaticField(c, p, f);
 
 		for(f in c.fields.get())
 		{
@@ -366,22 +318,11 @@ class LuaGenerator
 			props = [];
 		}
 
-		if(classCount > 1)
-		{
-			closeBlock();
-		}
+		closeBlock();
 	}
-
-	static var firstEnum = true;
 
 	function genEnum(e : EnumType)
 	{
-		if(firstEnum)
-		{
-			generateBaseEnum();
-			firstEnum = false;
-		}
-
 		var p = getPath(e).replace(".", "_");
 
 		#if verbose print('--class $p extends Enum {'); #end
@@ -411,11 +352,8 @@ class LuaGenerator
 			}
 			newline();
 		}
-
-		#if verbose print("--} --<-- huh?"); #end
 		newline();
 	}
-
 
 	function genStaticValue(c : ClassType, cf : ClassField)
 	{
@@ -427,93 +365,61 @@ class LuaGenerator
 	}
 
 	function genType(t : Type)
-	{
-		switch( t ) {
-			case TInst(c, _):
-				var c = c.get();
-				if(! c.isExtern) genClass(c);
-			case TEnum(r, _):
-				var e = r.get();
-				if(! e.isExtern) genEnum(e);
-			default:
-		}
-	}
-
-	function generateBaseEnum()
-	{
-		/*print("abstract class Enum {
-			String tag;
-			int index;
-			List params;
-			Enum(this.tag, this.index, [this.params]);
-			toString()=>params == null ? tag : tag + '(' + params.join(',') + ')';
-			}");	// String toString() { return haxe.Boot.enum_to_string(this); }*/
-		/*print("
-			Enum = {}
-			Enum_Enum = Enum
-		");*/
-		//newline();
+	switch( t ) {
+		case TInst(c, _):
+			var c = c.get();
+			if(! c.isExtern) genClass(c);
+		case TEnum(r, _):
+			var e = r.get();
+			if(! e.isExtern) genEnum(e);
+		default:
 	}
 
 	public function generate()
 	{
 		var now = Timer.stamp();
 
-		for(t in api.types)
-			genPathHacks(t);
+		for(t in api.types) genPathHacks(t);
 
 		var starter = "";
 
-		if(api.main != null)// && classCount > 1)
+		if(api.main != null)
 		{
-			print("");
-
 			genExpr(api.main);
-			print(";");
-			newline();
-
 			starter = buf.toString();
 			buf = new StringBuf();
 		}
 
-		for(t in api.types)
-			genType(t);
+		for(t in api.types) genType(t);
 
-		var importsBuf = new StringBuf();//currently only works within a single output file. Needs to be handled module by module
+		var importsBuf = new StringBuf();
 
-		for(mpt in imports)
-			importsBuf.add("require \"" + mpt + "\"\n");
-
-		var boot;
+		for(mpt in imports) importsBuf.add("require \"" + mpt + "\"\n");
 
 		var pos = Context.getPosInfos((macro null).pos);
 		var dir = haxe.io.Path.directory(pos.file);
 		var path = haxe.io.Path.addTrailingSlash(dir);
 
-		boot = new StringBuf();
+		var boot = new StringBuf();
 
 		#if !bootless
 
 		boot.add( "___hxClasses = {" );
-		for (i in hxClasses) {
-			boot .add( ''+ i +' = ' + i + "," );
-		}
-		boot .add( "}" );
+		for (i in hxClasses) boot.add( ''+ i +' = ' + i + "," );
+		boot.add( "}" );
 
-		boot .add( "" + sys.io.File.getContent('$path/boot/boot.lua') );
-		boot .add( "\n" + sys.io.File.getContent('$path/boot/tostring.lua') );
-		if(hxClasses.has("Std_Std")) boot .add( "\n" + sys.io.File.getContent('$path/boot/std.lua') );
-		if(hxClasses.has("luaxe_Sys_Sys")) boot .add( "\n" + sys.io.File.getContent('$path/boot/sys.lua') );
-		/*if(hxClasses.has("Math_Math"))*/ boot .add( "\n" + sys.io.File.getContent('$path/boot/math.lua') );
-		if(hxClasses.has("Reflect_Reflect")) boot .add( "\n" + sys.io.File.getContent('$path/boot/reflect.lua') );
-		boot .add( "\n" + sys.io.File.getContent('$path/boot/string.lua') );
-		if(hxClasses.has("StringTools_StringTools")) boot .add( "\n" + sys.io.File.getContent('$path/boot/stringtools.lua') );
-		boot .add( "\n" + sys.io.File.getContent('$path/boot/object.lua') );
-		if(hxClasses.has("Map_Map") || hxClasses.has("haxe_ds_IntMap_IntMap")) boot .add( "\n" + sys.io.File.getContent('$path/boot/map.lua') );
-		boot .add( "\n" + sys.io.File.getContent('$path/boot/date.lua') );
-		if(hxClasses.has("List_List")) boot .add( "\n" + sys.io.File.getContent('$path/boot/list.lua') );
-		boot .add( "\n" + sys.io.File.getContent('$path/boot/ereg.lua') ); // TODO remove from *release*
-
+		boot.add( "" + sys.io.File.getContent('$path/boot/boot.lua') );
+		boot.add( "\n" + sys.io.File.getContent('$path/boot/tostring.lua') );
+		if(hxClasses.has("Std_Std")) boot.add( "\n" + sys.io.File.getContent('$path/boot/std.lua') );
+		if(hxClasses.has("luaxe_Sys_Sys")) boot.add( "\n" + sys.io.File.getContent('$path/boot/sys.lua') );
+		/*if(hxClasses.has("Math_Math"))*/ boot.add( "\n" + sys.io.File.getContent('$path/boot/math.lua') );
+		if(hxClasses.has("Reflect_Reflect")) boot.add( "\n" + sys.io.File.getContent('$path/boot/reflect.lua') );
+		boot.add( "\n" + sys.io.File.getContent('$path/boot/string.lua') );
+		if(hxClasses.has("StringTools_StringTools")) boot.add( "\n" + sys.io.File.getContent('$path/boot/stringtools.lua') );
+		boot.add( "\n" + sys.io.File.getContent('$path/boot/object.lua') );
+		if(hxClasses.has("Map_Map") || hxClasses.has("haxe_ds_IntMap_IntMap")) boot.add( "\n" + sys.io.File.getContent('$path/boot/map.lua') );
+		boot.add( "\n" + sys.io.File.getContent('$path/boot/date.lua') );
+		if(hxClasses.has("List_List")) boot.add( "\n" + sys.io.File.getContent('$path/boot/list.lua') );
 		#end
 
 		#if luabootfile
@@ -523,17 +429,11 @@ class LuaGenerator
 		boot.add("require(\"" + haxe.io.Path.withoutDirectory(bootfile) + "\")");
 		#end
 
-		var r;
+		var bootStr = (~/\n[ \t]{0,}--[^\n]+/g).replace(boot.toString(), "");
+		bootStr = (~/--[^\n]+/g).replace(bootStr, "").replace("\n\n", "\n");
 
-		r = ~/\n[ \t]{0,}--[^\n]+/g;
-		var bootStr = r.replace(boot.toString(), "");
-		r = ~/--[^\n]+/g;
-		bootStr = r.replace(bootStr, "");
-		bootStr = bootStr.replace("\n\n", "\n");
+		var result = importsBuf;
 
-		var result = new StringBuf();
-
-		result.add(importsBuf.toString());
 		result.add("\nfunction exec()\n");
 		result.add(buf.toString());
 		result.add("\nend\n");
@@ -546,11 +446,8 @@ class LuaGenerator
 		trace('Lua generated in ${Std.int((Timer.stamp() - now)*1000)}ms');
 	}
 
-	static var indentCount : Int = 0;
-
 	inline function openBlock()
 	{
-		#if verbose newline(); print("--{"); #end
 		indentCount ++;
 		newline();
 	}
@@ -558,14 +455,18 @@ class LuaGenerator
 	inline function closeBlock()
 	{
 		indentCount --;
-		#if verbose newline(); print("--}"); #end
-		newline();
 		newline();
 	}
 
+	/** Macro generator initialization **/
+
+	public function new(api)
+	{
+		this.api = api;
+		api.setTypeAccessor(getType);
+	}
+
 	public static function use() {
-		Compiler.allowPackage("sys");
-		Compiler.define("sys");
 		Compiler.allowPackage("lua");
 		Compiler.define("lua");
 		Compiler.setCustomJSGenerator(function(api) new LuaGenerator(api).generate());
