@@ -94,12 +94,14 @@ class Array<T> implements ArrayAccess<T> {
 	@:keep public function toString() : String {
 		var s = "[ ";
     	untyped __lua__(
-    	"function prv(v)
-    		s = s + v
+    	"local max = -1
+    	for key, value in pairs (self) do
+    		max = key > max and key or max
     	end
     	local first = true
-    	for key, value in pairs (self) do
-    		prv(first and value or (\", \" + value))
+     	for i=0,max do
+    		local value = self[i]
+    		s = s + (first and value or (\", \" + value))
     		first = false
     	end");
     	return s + " ]";
