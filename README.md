@@ -1,7 +1,7 @@
 LuaXe
 =====
 
-![lua](https://cloud.githubusercontent.com/assets/3642643/5304500/5051797e-7c04-11e4-9c33-9c7290194a04.png)
+![lua](https://cloud.githubusercontent.com/assets/3642643/5892488/6bb5e326-a4d1-11e4-8e5b-4fa2ef3270f3.png)
 
 <a href="http://peyty.github.io#donate"><img src="http://peyty.github.io/images/donate.png"></a>
 <a href="http://peyty.github.io#hireme"><img src="http://peyty.github.io/images/hireme.png"></a>
