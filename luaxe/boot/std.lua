@@ -5,7 +5,6 @@ function Std.int( x, y ) -- Fix for tail-call generator bug, TODO fix
 	local z = y or x
 	return z > 0 and math.floor(z) or math.ceil(z)
 end
--- TODO maybe Std.func = func is faster to call
 --static function string(s:Dynamic):String
 --Converts any value to a String.
 --If s is of String, Int, Float or Bool, its value is returned.
@@ -14,7 +13,13 @@ end
 --If s is a structure, the field names along with their values are returned. The field order and the operator separating field names and values are unspecified.
 --If s is null, "null" is returned.
 function Std.string( s )
-	return s==nil and "null" or tostring(s)
+	local t = type(s)
+	if t == "string" then return s
+	elseif s == nil then return "null"
+	elseif t == "function" then return "<function>"
+	elseif t == "userdata" or t == "thread" then return t
+	end
+	return tostring(s)
 end
 --function instance<T, S>(value:T, c:Class<S>):S
 --Checks if object value is an instance of class c.
