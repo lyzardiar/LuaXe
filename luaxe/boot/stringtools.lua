@@ -90,3 +90,5 @@ function StringTools.urlEncode(s)
 	end
 	return (string.gsub(s, "[^-._/a-zA-Z0-9]", hex))
 end
+_G.decodeURIComponent = StringTools.urlDecode
+_G.encodeURIComponent = StringTools.urlEncode
