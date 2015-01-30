@@ -1,6 +1,8 @@
 LuaXe
 =====
 
+[![Join the chat at https://gitter.im/PeyTy/LuaXe](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/PeyTy/LuaXe?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ![lua](https://cloud.githubusercontent.com/assets/3642643/5892488/6bb5e326-a4d1-11e4-8e5b-4fa2ef3270f3.png)
 
 <a href="http://peyty.github.io#donate"><img src="http://peyty.github.io/images/donate.png"></a>
