@@ -6,8 +6,8 @@ undefined = { } -- unique special value for (mostly) internal use.
 
 pcall(require, 'bit32')
 pcall(require, 'bit')
-if(bit == nil)then bit = bit32 end
-if(bit32 == nil)then bit32 = bit end
+bit = bit or bit32
+bit32 = bit
 
 Enum = Enum or {}
 Enum_Enum = Enum_Enum or Enum
