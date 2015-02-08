@@ -42,18 +42,7 @@ Thumbs.db
 
 *.xml
 
-bin/hx/obj/darwin/all_objs
-
-bin/hx/Main
-
-haxelibtest
-bin/hx.lua
-bin
-bin/hx.js
-
-bin/hx.js
-
-bin/hx.lua
+bin/
 
 demo/extra/hx.lua
 demo/extra/dump
