@@ -23,7 +23,7 @@ class Lua
 
 /*
 	LuaArray
-	Wrap any Lua array to safely index for [0]
+	Wrap any Lua array to safely index from [0]
 */
 abstract LuaArray<T>(Dynamic)
 {
